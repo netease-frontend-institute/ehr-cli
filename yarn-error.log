@@ -1,0 +1,44 @@
+Arguments: 
+  /usr/local/bin/node /Users/shulicheng/.yarn/bin/yarn.js install
+
+PATH: 
+  /Users/shulicheng/.yarn/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/Users/shulicheng/study/ehr-cli/node_modules/.bin
+
+Yarn version: 
+  1.15.2
+
+Node version: 
+  8.11.3
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: EACCES: permission denied, unlink '/Users/shulicheng/study/ehr-cli/node_modules/ansi-styles/license'
+
+npm manifest: 
+  {
+    "name": "@netease-ehr/cli",
+    "version": "0.0.3",
+    "description": "EHR前端脚手架",
+    "bin": {
+      "ehr-cli": "bin/init"
+    },
+    "devDependencies": {
+    },
+    "dependencies": {
+      "commander": "^5.0.0",
+      "fs-extra": "^8.1.0",
+      "which": "^2.0.2",
+      "chalk": "^3.0.0",
+      "download-git-repo": "^3.0.2",
+      "inquirer": "^7.0.5",
+      "ora": "^4.0.3"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

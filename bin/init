@@ -1,0 +1,131 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+var inquirer = require('inquirer');
+var writeJSONSync = require('fs-extra').writeJSONSync;
+var fs = require('fs');
+var path = require('path');
+var exists = require('fs').existsSync // 检测路径是否存在
+var questions = require('../lib/question');
+var download = require('download-git-repo'); // 下载git仓库
+var ora = require('ora'); // 在终端里有显示载入动画
+var logSymbols = require('log-symbols');
+var childProcess = require('child_process');
+var chalk = require('chalk');
+var which = require('which');
+// 定义当前版本
+// 定义使用方法
+// 定义四个指令
+program
+    .version(require('../package.json').version)
+    .usage('<command> [options]');
+
+inquirer
+    .prompt(questions)
+    .then(answers => {
+        generator(answers);
+
+    })
+    .catch(error => {
+        if (error.isTtyError) {
+            // Prompt couldn't be rendered in the current environment
+        } else {
+            // Something else when wrong
+        }
+    });
+
+function generator(answers) {
+    const gitUrl = "netease-frontend-institute/ehr-react-template";
+    let template = '';
+    // 克隆项目
+    console.log(answers);
+    if (answers.pageType === 'single') {
+        if (answers.ts) {
+            // ts分支
+            template = '#single/ts'
+
+        } else {
+            // single分支
+            template = '#single/js'
+        }
+    } else {
+        template = '#multiple/js'
+    }
+
+    var spinner = ora(`创建项目${chalk.green(answers.name)}中， 源地址：https://github.com/${gitUrl}`);
+    spinner.start();
+    // console.log(`${gitUrl}${template}`);
+    download(`${gitUrl}${template}`, path.join(process.cwd(), answers.name), {clone: false}, function (err) {
+        if (err) {
+            spinner.fail(`${chalk.red("创建失败: " + err.message)}`);
+            return
+        }
+        try {
+            spinner.succeed("创建成功");
+            // 更新package.json
+            const packageJson = path.join(path.resolve(answers.name), 'package.json');
+            updateFile(packageJson, {
+                name: answers.name,
+            });
+            // 安装依赖
+            if (answers.autoInstall) {
+                console.log('安装依赖...');
+                const projectPath = path.resolve(answers.name);
+                process.chdir(projectPath);
+                if (answers.autoInstall === 'npm') {
+                    const npm = findNpm();
+                    exec(which.sync(npm), ['install'], function () {
+                        console.log(npm + '安装完成');
+                    });
+                } else {
+                    exec(which.sync('yarn'), ['install'], function () {
+                        console.log('安装完成');
+                    });
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+
+    })
+}
+
+function findNpm() {
+    const npms = ['tnpm', 'cnpm', 'npm'];
+    for (let i = 0; i < npms.length; i++) {
+        try {
+            // 查找环境变量下指定的可执行文件的第一个实例
+            which.sync(npms[i]);
+            return npms[i]
+        } catch (e) {
+        }
+    }
+    throw new Error(chalk.red('请安装npm'));
+}
+
+function exec(cmd, args, fn) {
+    args = args || [];
+    const runner = childProcess.spawn(cmd, args, {
+        stdio: 'inherit'
+    });
+
+    runner.on('close', function (code) {
+        if (fn) {
+            fn(code);
+        }
+    })
+}
+
+function updateFile(filePath, contents) {
+    if (fs.existsSync(filePath)) {
+        const fileContent = Object.assign({}, require(filePath), contents);
+        writeJSONSync(filePath, fileContent, {spaces: '\t'});
+    } else {
+        throw new Error(chalk.red(`${filePath}不存在`));
+    }
+};
+
+
+
+
+

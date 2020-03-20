@@ -1,0 +1,18 @@
+{
+  "name": "@netease-ehr/cli",
+  "version": "0.0.4",
+  "description": "EHR前端脚手架",
+  "bin": {
+    "ehr-cli": "bin/init"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "commander": "^5.0.0",
+    "fs-extra": "^8.1.0",
+    "which": "^2.0.2",
+    "chalk": "^3.0.0",
+    "download-git-repo": "^3.0.2",
+    "inquirer": "^7.0.5",
+    "ora": "^4.0.3"
+  }
+}
